@@ -1,0 +1,56 @@
+name: Generate Sitemap
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate sitemap
+        run: |
+          # Get repo info
+          REPO_NAME="${{ github.event.repository.name }}"
+          OWNER="${{ github.repository_owner }}"
+          
+          # Determine base URL
+          if [ "$REPO_NAME" = "$OWNER.github.io" ]; then
+            BASE_URL="https://${OWNER}.github.io"
+          else
+            BASE_URL="https://${OWNER}.github.io/${REPO_NAME}"
+          fi
+          
+          TODAY=$(date +%Y-%m-%d)
+          
+          # Generate sitemap.xml
+          cat > sitemap.xml << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+            <url>
+              <loc>${BASE_URL}/</loc>
+              <lastmod>${TODAY}</lastmod>
+              <changefreq>monthly</changefreq>
+              <priority>1.0</priority>
+            </url>
+          </urlset>
+          EOF
+          
+          # Generate robots.txt
+          cat > robots.txt << EOF
+          User-agent: *
+          Allow: /
+
+          Sitemap: ${BASE_URL}/sitemap.xml
+          EOF
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add sitemap.xml robots.txt
+          git diff --staged --quiet || git commit -m "Update sitemap [skip ci]"
+          git push
