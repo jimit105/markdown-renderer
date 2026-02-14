@@ -59,16 +59,27 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Dark Mode Toggle -->
-  <button
-    id="theme-toggle"
-    class="theme-toggle"
-    aria-label="Toggle dark mode"
-    title="Toggle dark mode"
-  >
-    <span class="icon-sun">☀️</span>
-    <span class="icon-moon">🌙</span>
-  </button>
+  <!-- Toolbar Buttons -->
+  <div class="toolbar">
+    <button
+      id="share-btn"
+      class="toolbar-btn"
+      aria-label="Share as URL"
+      title="Copy shareable link"
+    >🔗</button>
+    <button
+      id="theme-toggle"
+      class="toolbar-btn"
+      aria-label="Toggle dark mode"
+      title="Toggle dark mode"
+    >
+      <span class="icon-sun">☀️</span>
+      <span class="icon-moon">🌙</span>
+    </button>
+  </div>
+
+  <!-- Share toast notification -->
+  <div id="share-toast" class="share-toast" aria-live="polite"></div>
 
   <main>
     <section class="editor-section">
@@ -90,6 +101,9 @@
       ></div>
     </section>
   </main>
+
+  <!-- lz-string — URL-safe compression for shareable links -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
 
   <!-- marked.js — Markdown parser -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>

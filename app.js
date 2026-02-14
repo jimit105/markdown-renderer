@@ -289,6 +289,8 @@ function initResizableDivider() {
 document.addEventListener('DOMContentLoaded', function() {
   initTheme();
   initRenderer();
+  initSharing();
+  loadFromHash();
 });
 
 /**
@@ -345,6 +347,85 @@ function initTheme() {
   }
 }
 
+/**
+ * Loads markdown content from the URL hash if present.
+ * Supports lz-string compressed format: #lz,<compressed>
+ */
+function loadFromHash() {
+  var hash = window.location.hash.slice(1); // remove #
+  if (!hash) return;
+
+  var editor = document.getElementById('editor');
+  if (!editor) return;
+
+  try {
+    if (hash.startsWith('lz,')) {
+      var compressed = hash.slice(3);
+      var text = LZString.decompressFromEncodedURIComponent(compressed);
+      if (text) {
+        editor.value = text;
+        updatePreview();
+      }
+    }
+  } catch (e) {
+    // Silently ignore invalid hash data
+  }
+}
+
+/**
+ * Compresses the current editor content and generates a shareable URL.
+ * Copies the URL to clipboard and shows a toast notification.
+ */
+function shareAsUrl() {
+  var editor = document.getElementById('editor');
+  var text = editor.value;
+
+  if (!text || text.trim() === '') {
+    showToast('Nothing to share — editor is empty');
+    return;
+  }
+
+  var compressed = LZString.compressToEncodedURIComponent(text);
+  var url = window.location.origin + window.location.pathname + '#lz,' + compressed;
+
+  // Update the URL without reloading
+  history.replaceState(null, '', '#lz,' + compressed);
+
+  // Copy to clipboard
+  navigator.clipboard.writeText(url).then(function() {
+    showToast('Link copied to clipboard');
+  }).catch(function() {
+    // Fallback for older browsers
+    showToast('URL updated — copy from address bar');
+  });
+}
+
+/**
+ * Sets up the Share button click handler.
+ */
+function initSharing() {
+  var shareBtn = document.getElementById('share-btn');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', shareAsUrl);
+  }
+}
+
+/**
+ * Shows a brief toast notification at the bottom of the screen.
+ * @param {string} message - Text to display
+ */
+function showToast(message) {
+  var toast = document.getElementById('share-toast');
+  if (!toast) return;
+
+  toast.textContent = message;
+  toast.classList.add('visible');
+
+  setTimeout(function() {
+    toast.classList.remove('visible');
+  }, 2500);
+}
+
 // Export functions for testing
 if (typeof window !== 'undefined') {
   window.debounce = debounce;
@@ -355,4 +436,7 @@ if (typeof window !== 'undefined') {
   window.initRenderer = initRenderer;
   window.initResizableDivider = initResizableDivider;
   window.initTheme = initTheme;
+  window.loadFromHash = loadFromHash;
+  window.shareAsUrl = shareAsUrl;
+  window.initSharing = initSharing;
 }
