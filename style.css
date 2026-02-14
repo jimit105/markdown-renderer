@@ -1,0 +1,429 @@
+/* --- Reset & Base --- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #24292e;
+  background-color: #f6f8fa;
+}
+
+/* --- Main Split-Pane Layout --- */
+main {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* --- Editor Section --- */
+.editor-section {
+  flex: 1 1 50%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#editor {
+  width: 100%;
+  height: 100%;
+  padding: 16px 20px;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo,
+    Courier, monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #24292e;
+  background-color: #ffffff;
+  tab-size: 4;
+}
+
+#editor::placeholder {
+  color: #959da5;
+  font-style: italic;
+}
+
+/* --- Resizable Divider --- */
+.divider {
+  flex: 0 0 6px;
+  background-color: #d1d5da;
+  cursor: col-resize;
+  cursor: grab;
+  position: relative;
+  transition: background-color 0.15s ease;
+  z-index: 10;
+}
+
+.divider:hover,
+.divider:active {
+  background-color: #0366d6;
+}
+
+.divider:active {
+  cursor: grabbing;
+}
+
+/* --- Preview Section --- */
+.preview-section {
+  flex: 1 1 50%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.preview-panel {
+  width: 100%;
+  height: 100%;
+  padding: 24px 32px;
+  overflow-y: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* --- Placeholder for Empty Preview --- */
+.preview-panel:empty::before {
+  content: "Start typing Markdown to see a live preview...";
+  color: #959da5;
+  font-style: italic;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.preview-panel .placeholder {
+  color: #959da5;
+  font-style: italic;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  user-select: none;
+}
+
+
+/* ============================================
+   Rendered Markdown Element Styles
+   ============================================ */
+
+/* --- Headings --- */
+.preview-panel h1,
+.preview-panel h2,
+.preview-panel h3,
+.preview-panel h4,
+.preview-panel h5,
+.preview-panel h6 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.preview-panel h1 {
+  font-size: 2em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #eaecef;
+}
+
+.preview-panel h2 {
+  font-size: 1.5em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #eaecef;
+}
+
+.preview-panel h3 {
+  font-size: 1.25em;
+}
+
+.preview-panel h4 {
+  font-size: 1em;
+}
+
+.preview-panel h5 {
+  font-size: 0.875em;
+}
+
+.preview-panel h6 {
+  font-size: 0.85em;
+  color: #6a737d;
+}
+
+.preview-panel h1:first-child,
+.preview-panel h2:first-child,
+.preview-panel h3:first-child {
+  margin-top: 0;
+}
+
+/* --- Paragraphs --- */
+.preview-panel p {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+/* --- Links --- */
+.preview-panel a {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+.preview-panel a:hover {
+  text-decoration: underline;
+}
+
+/* --- Bold & Italic --- */
+.preview-panel strong {
+  font-weight: 600;
+}
+
+.preview-panel em {
+  font-style: italic;
+}
+
+/* --- Strikethrough (GFM) --- */
+.preview-panel del {
+  text-decoration: line-through;
+  color: #6a737d;
+}
+
+/* --- Blockquotes --- */
+.preview-panel blockquote {
+  margin: 0 0 16px 0;
+  padding: 0 16px;
+  color: #6a737d;
+  border-left: 4px solid #dfe2e5;
+}
+
+.preview-panel blockquote > :first-child {
+  margin-top: 0;
+}
+
+.preview-panel blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+/* --- Lists --- */
+.preview-panel ul,
+.preview-panel ol {
+  margin-top: 0;
+  margin-bottom: 16px;
+  padding-left: 2em;
+}
+
+.preview-panel li {
+  margin-bottom: 4px;
+}
+
+.preview-panel li > p {
+  margin-bottom: 8px;
+}
+
+.preview-panel ul ul,
+.preview-panel ul ol,
+.preview-panel ol ul,
+.preview-panel ol ol {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* --- Task Lists (GFM) --- */
+.preview-panel ul.contains-task-list,
+.preview-panel .task-list-item {
+  list-style-type: none;
+}
+
+.preview-panel ul.contains-task-list {
+  padding-left: 0;
+}
+
+.preview-panel .task-list-item {
+  position: relative;
+  padding-left: 1.6em;
+}
+
+.preview-panel .task-list-item input[type="checkbox"] {
+  position: absolute;
+  left: 0;
+  top: 0.3em;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* --- Tables (GFM) --- */
+.preview-panel table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin-top: 0;
+  margin-bottom: 16px;
+  overflow: auto;
+  display: block;
+}
+
+.preview-panel table th,
+.preview-panel table td {
+  padding: 6px 13px;
+  border: 1px solid #dfe2e5;
+}
+
+.preview-panel table th {
+  font-weight: 600;
+  background-color: #f6f8fa;
+}
+
+.preview-panel table tr {
+  background-color: #ffffff;
+  border-top: 1px solid #c6cbd1;
+}
+
+.preview-panel table tr:nth-child(2n) {
+  background-color: #f6f8fa;
+}
+
+/* --- Code: Inline --- */
+.preview-panel code {
+  padding: 0.2em 0.4em;
+  margin: 0;
+  font-size: 85%;
+  background-color: rgba(27, 31, 35, 0.05);
+  border-radius: 3px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo,
+    Courier, monospace;
+}
+
+/* --- Code Blocks (with highlight.js integration) --- */
+.preview-panel pre {
+  margin-top: 0;
+  margin-bottom: 16px;
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  border: 1px solid #e1e4e8;
+}
+
+.preview-panel pre code {
+  display: block;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  font-size: 100%;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+/* Ensure highlight.js theme integrates cleanly */
+.preview-panel pre code.hljs {
+  padding: 0;
+  background: transparent;
+}
+
+/* --- Images --- */
+.preview-panel img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  display: block;
+  margin: 8px 0;
+}
+
+/* Broken image styling */
+.preview-panel img.broken-image {
+  border: 1px dashed #d1d5da;
+  padding: 8px;
+  color: #6a737d;
+  font-style: italic;
+  min-height: 40px;
+}
+
+/* --- Horizontal Rules --- */
+.preview-panel hr {
+  height: 0.25em;
+  padding: 0;
+  margin: 24px 0;
+  background-color: #e1e4e8;
+  border: 0;
+}
+
+/* --- Mermaid Diagrams --- */
+.preview-panel pre.mermaid {
+  background-color: #ffffff;
+  border: 1px solid #e1e4e8;
+  text-align: center;
+  padding: 16px;
+}
+
+.preview-panel .mermaid-error {
+  color: #cb2431;
+  background-color: #ffeef0;
+  border: 1px solid #fdaeb7;
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo,
+    Courier, monospace;
+  white-space: pre-wrap;
+  margin-bottom: 16px;
+}
+
+/* ============================================
+   Responsive Layout
+   ============================================ */
+@media (max-width: 767px) {
+  main {
+    flex-direction: column;
+  }
+
+  .editor-section {
+    flex: 0 0 45%;
+    min-height: 200px;
+  }
+
+  .divider {
+    flex: 0 0 6px;
+    cursor: row-resize;
+    cursor: grab;
+  }
+
+  .preview-section {
+    flex: 1 1 auto;
+    min-height: 200px;
+  }
+
+  .preview-panel {
+    padding: 16px;
+  }
+}
+
+/* --- Utility: Prevent text selection during divider drag --- */
+body.resizing {
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: col-resize;
+}
+
+@media (max-width: 767px) {
+  body.resizing {
+    cursor: row-resize;
+  }
+}

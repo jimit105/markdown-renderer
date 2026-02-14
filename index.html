@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown Renderer</title>
+
+  <!-- Highlight.js Theme CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+
+  <!-- Application Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <section class="editor-section">
+      <textarea
+        id="editor"
+        aria-label="Markdown editor"
+        placeholder="Type your Markdown here..."
+      ></textarea>
+    </section>
+
+    <div class="divider" role="separator" aria-label="Resize divider"></div>
+
+    <section class="preview-section">
+      <div
+        id="preview"
+        class="preview-panel"
+        aria-label="Rendered Markdown preview"
+        role="region"
+      ></div>
+    </section>
+  </main>
+
+  <!-- marked.js — Markdown parser -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+
+  <!-- highlight.js — Syntax highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <!-- Mermaid.js — Diagram rendering -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+
+  <!-- Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>
