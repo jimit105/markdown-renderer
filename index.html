@@ -5,13 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Markdown Renderer</title>
 
-  <!-- Highlight.js Theme CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+  <!-- Highlight.js Theme CSS (light) -->
+  <link id="hljs-theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
 
   <!-- Application Styles -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Dark Mode Toggle -->
+  <button
+    id="theme-toggle"
+    class="theme-toggle"
+    aria-label="Toggle dark mode"
+    title="Toggle dark mode"
+  >
+    <span class="icon-sun">☀️</span>
+    <span class="icon-moon">🌙</span>
+  </button>
+
   <main>
     <section class="editor-section">
       <textarea

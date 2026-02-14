@@ -286,7 +286,64 @@ function initResizableDivider() {
 }
 
 // Initialize on DOMContentLoaded
-document.addEventListener('DOMContentLoaded', initRenderer);
+document.addEventListener('DOMContentLoaded', function() {
+  initTheme();
+  initRenderer();
+});
+
+/**
+ * Initializes the theme based on saved preference or system preference.
+ * Sets up the theme toggle button.
+ */
+function initTheme() {
+  var themeToggle = document.getElementById('theme-toggle');
+  var hljsTheme = document.getElementById('hljs-theme');
+
+  // Check for saved preference, otherwise use system preference
+  var savedTheme = localStorage.getItem('theme');
+  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var theme = savedTheme || (prefersDark ? 'dark' : 'light');
+
+  applyTheme(theme);
+
+  // Toggle button click handler
+  if (themeToggle) {
+    themeToggle.addEventListener('click', function() {
+      var currentTheme = document.documentElement.getAttribute('data-theme');
+      var newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      applyTheme(newTheme);
+      localStorage.setItem('theme', newTheme);
+    });
+  }
+
+  /**
+   * Applies the specified theme to the document.
+   * @param {string} theme - 'light' or 'dark'
+   */
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+
+    // Switch highlight.js theme
+    if (hljsTheme) {
+      if (theme === 'dark') {
+        hljsTheme.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css';
+      } else {
+        hljsTheme.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+      }
+    }
+
+    // Update Mermaid theme and re-render diagrams
+    if (typeof mermaid !== 'undefined') {
+      mermaid.initialize({
+        startOnLoad: false,
+        suppressErrors: true,
+        theme: theme === 'dark' ? 'dark' : 'default'
+      });
+      // Re-render mermaid diagrams with new theme
+      renderMermaidDiagrams();
+    }
+  }
+}
 
 // Export functions for testing
 if (typeof window !== 'undefined') {
@@ -297,4 +354,5 @@ if (typeof window !== 'undefined') {
   window.updatePreview = updatePreview;
   window.initRenderer = initRenderer;
   window.initResizableDivider = initResizableDivider;
+  window.initTheme = initTheme;
 }
