@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jimit105.github.io/markdown-renderer/sitemap.xml
