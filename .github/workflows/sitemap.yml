@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     # Skip only this workflow when it committed the previous push
     if: github.actor != 'github-actions[bot]'
     steps:
