@@ -89,7 +89,42 @@ function updatePreview() {
 
   var html = renderMarkdown(markdownText);
   preview.innerHTML = html;
+  addCopyButtons(preview);
   renderMermaidDiagrams();
+}
+
+/**
+ * Adds a copy button to each <pre> code block in the preview panel.
+ * Skips mermaid blocks since those render as diagrams.
+ * @param {HTMLElement} container - The preview panel element
+ */
+function addCopyButtons(container) {
+  var preBlocks = container.querySelectorAll('pre');
+  for (var i = 0; i < preBlocks.length; i++) {
+    var pre = preBlocks[i];
+    // Skip mermaid blocks
+    if (pre.classList.contains('mermaid')) continue;
+
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3a1.5 1.5 0 0 0-1.5-1.5H3A1.5 1.5 0 0 0 1.5 3v6A1.5 1.5 0 0 0 3 10.5h2.5"/></svg>';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', (function(preEl, btnEl) {
+      return function() {
+        var code = preEl.querySelector('code');
+        var text = code ? code.textContent : preEl.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+          btnEl.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8.5l3 3 7-7"/></svg>';
+          setTimeout(function() { btnEl.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3a1.5 1.5 0 0 0-1.5-1.5H3A1.5 1.5 0 0 0 1.5 3v6A1.5 1.5 0 0 0 3 10.5h2.5"/></svg>'; }, 1500);
+        }).catch(function() {
+          btnEl.innerHTML = '✗';
+          setTimeout(function() { btnEl.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3a1.5 1.5 0 0 0-1.5-1.5H3A1.5 1.5 0 0 0 1.5 3v6A1.5 1.5 0 0 0 3 10.5h2.5"/></svg>'; }, 1500);
+        });
+      };
+    })(pre, btn));
+    pre.appendChild(btn);
+  }
 }
 
 /**

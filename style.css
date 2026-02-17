@@ -455,6 +455,37 @@ main {
   background: transparent;
 }
 
+/* --- Copy Button on Code Blocks --- */
+.preview-panel pre .copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--text-secondary);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
+.preview-panel pre:hover .copy-btn {
+  opacity: 1;
+}
+
+.preview-panel pre .copy-btn:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
 /* --- Images --- */
 .preview-panel img {
   max-width: 100%;
