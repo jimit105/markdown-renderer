@@ -67,6 +67,9 @@ async function renderMermaidDiagrams() {
         + escapeHtml(errorMessage) + '</div>';
     }
   }
+
+  // Add copy-as-image buttons to successfully rendered diagrams
+  addMermaidCopyButtons(preview);
 }
 
 /**
@@ -124,6 +127,93 @@ function addCopyButtons(container) {
       };
     })(pre, btn));
     pre.appendChild(btn);
+  }
+}
+
+/**
+ * Adds a copy-as-image button to each rendered Mermaid diagram.
+ * Converts the diagram to a PNG and copies it to the clipboard.
+ * @param {HTMLElement} container - The preview panel element
+ */
+function addMermaidCopyButtons(container) {
+  var copyIcon = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3a1.5 1.5 0 0 0-1.5-1.5H3A1.5 1.5 0 0 0 1.5 3v6A1.5 1.5 0 0 0 3 10.5h2.5"/></svg>';
+  var checkIcon = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8.5l3 3 7-7"/></svg>';
+
+  var diagrams = container.querySelectorAll('pre.mermaid');
+  for (var i = 0; i < diagrams.length; i++) {
+    var el = diagrams[i];
+    var svg = el.querySelector('svg');
+    if (!svg || el.querySelector('.copy-btn')) continue;
+
+    el.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.innerHTML = copyIcon;
+    btn.setAttribute('aria-label', 'Copy diagram as image');
+    btn.addEventListener('click', (function(svgEl, btnEl) {
+      return function() {
+        var clone = svgEl.cloneNode(true);
+        var bbox = svgEl.getBoundingClientRect();
+        clone.setAttribute('width', bbox.width);
+        clone.setAttribute('height', bbox.height);
+        clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+
+        // Embed computed styles as a <style> block instead of inlining on every element
+        var styles = '';
+        var sheets = document.styleSheets;
+        for (var s = 0; s < sheets.length; s++) {
+          try {
+            var rules = sheets[s].cssRules;
+            if (rules) {
+              for (var r = 0; r < rules.length; r++) {
+                styles += rules[r].cssText + '\n';
+              }
+            }
+          } catch (e) { /* skip cross-origin sheets */ }
+        }
+        var styleEl = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+        styleEl.textContent = styles;
+        clone.insertBefore(styleEl, clone.firstChild);
+
+        // Add white background (with !important to override dark mode styles)
+        var bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bg.setAttribute('width', '100%');
+        bg.setAttribute('height', '100%');
+        bg.setAttribute('fill', '#ffffff');
+        bg.setAttribute('style', 'fill: #ffffff !important;');
+        clone.insertBefore(bg, clone.firstChild);
+
+        var svgData = new XMLSerializer().serializeToString(clone);
+        var img = new Image();
+        img.onload = function() {
+          var scale = 2;
+          var canvas = document.createElement('canvas');
+          canvas.width = bbox.width * scale;
+          canvas.height = bbox.height * scale;
+          var ctx = canvas.getContext('2d');
+          ctx.scale(scale, scale);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, bbox.width, bbox.height);
+          ctx.drawImage(img, 0, 0, bbox.width, bbox.height);
+          canvas.toBlob(function(pngBlob) {
+            if (!pngBlob) return;
+            navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]).then(function() {
+              btnEl.innerHTML = checkIcon;
+              setTimeout(function() { btnEl.innerHTML = copyIcon; }, 1500);
+            }).catch(function() {
+              btnEl.innerHTML = '✗';
+              setTimeout(function() { btnEl.innerHTML = copyIcon; }, 1500);
+            });
+          }, 'image/png');
+        };
+        img.onerror = function() {
+          btnEl.innerHTML = '✗';
+          setTimeout(function() { btnEl.innerHTML = copyIcon; }, 1500);
+        };
+        img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+      };
+    })(svg, btn));
+    el.appendChild(btn);
   }
 }
 
