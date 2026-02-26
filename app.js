@@ -415,6 +415,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initTheme();
   initRenderer();
   initSharing();
+  initPdfDownload();
   loadFromHash();
 });
 
@@ -536,6 +537,97 @@ function initSharing() {
 }
 
 /**
+ * Downloads the rendered markdown preview as a PDF file.
+ * Opens a new window with the preview content and print-optimized styles,
+ * then triggers the browser's native print dialog (Save as PDF).
+ */
+function downloadPdf() {
+  var preview = document.getElementById('preview');
+  var editor = document.getElementById('editor');
+
+  if (!editor.value || editor.value.trim() === '') {
+    showToast('Nothing to export — editor is empty');
+    return;
+  }
+
+  // Collect the current highlight.js theme CSS href
+  var hljsTheme = document.getElementById('hljs-theme');
+  var hljsHref = hljsTheme ? hljsTheme.href : '';
+
+  // Print-optimized styles with proper page-break rules
+  var printStyles =
+    '@page { margin: 20mm 15mm; size: A4; }' +
+    '*, *::before, *::after { box-sizing: border-box; }' +
+    'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #24292e; background: #fff; margin: 0; padding: 20px; }' +
+    'h1, h2, h3, h4, h5, h6 { page-break-after: avoid; break-after: avoid; margin-top: 24px; margin-bottom: 16px; font-weight: 600; line-height: 1.25; }' +
+    'h1 { font-size: 2em; padding-bottom: 0.3em; border-bottom: 1px solid #eaecef; }' +
+    'h2 { font-size: 1.5em; padding-bottom: 0.3em; border-bottom: 1px solid #eaecef; }' +
+    'h3 { font-size: 1.25em; }' +
+    'h1:first-child, h2:first-child, h3:first-child { margin-top: 0; }' +
+    'p { margin-top: 0; margin-bottom: 16px; orphans: 3; widows: 3; }' +
+    'a { color: #0366d6; text-decoration: none; }' +
+    'strong { font-weight: 600; }' +
+    'del { text-decoration: line-through; color: #6a737d; }' +
+    'blockquote { margin: 0 0 16px 0; padding: 0 16px; color: #6a737d; border-left: 4px solid #dfe2e5; page-break-inside: avoid; break-inside: avoid; }' +
+    'ul, ol { margin-top: 0; margin-bottom: 16px; padding-left: 2em; }' +
+    'li { margin-bottom: 4px; }' +
+    'table { width: 100%; border-collapse: collapse; margin-bottom: 16px; page-break-inside: auto; }' +
+    'thead { display: table-header-group; }' +
+    'tr { page-break-inside: avoid; break-inside: avoid; }' +
+    'th, td { padding: 6px 13px; border: 1px solid #dfe2e5; }' +
+    'th { font-weight: 600; background-color: #f6f8fa; }' +
+    'tr:nth-child(2n) { background-color: #f6f8fa; }' +
+    'code { padding: 0.2em 0.4em; font-size: 85%; background-color: rgba(27,31,35,0.05); border-radius: 3px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }' +
+    'pre { margin-bottom: 16px; padding: 16px; overflow: visible; white-space: pre-wrap; word-wrap: break-word; font-size: 85%; line-height: 1.45; background-color: #f6f8fa; border-radius: 6px; border: 1px solid #e1e4e8; page-break-inside: avoid; break-inside: avoid; }' +
+    'pre code { display: block; padding: 0; margin: 0; background: transparent; border: 0; border-radius: 0; font-size: 100%; white-space: pre-wrap; word-wrap: break-word; }' +
+    'pre code.hljs { padding: 0; background: transparent; }' +
+    'img { max-width: 100%; height: auto; page-break-inside: avoid; break-inside: avoid; display: block; margin: 8px 0; }' +
+    'hr { height: 0.25em; padding: 0; margin: 24px 0; background-color: #e1e4e8; border: 0; }' +
+    'svg { max-width: 100%; height: auto; }' +
+    '.mermaid-error { color: #cb2431; background: #ffeef0; border: 1px solid #fdaeb7; border-radius: 6px; padding: 12px 16px; font-size: 0.875rem; }' +
+    '.copy-btn { display: none !important; }' +
+    'pre.mermaid { background: #fff; border: 1px solid #e1e4e8; text-align: center; padding: 16px; page-break-inside: avoid; break-inside: avoid; }';
+
+  var contentHtml = preview.innerHTML;
+
+  var fullHtml =
+    '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+    '<title>Markdown Export</title>' +
+    (hljsHref ? '<link rel="stylesheet" href="' + hljsHref + '">' : '') +
+    '<style>' + printStyles + '</style>' +
+    '</head><body>' + contentHtml + '</body></html>';
+
+  var printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    showToast('Pop-up blocked — please allow pop-ups for this site');
+    return;
+  }
+
+  printWindow.document.open();
+  printWindow.document.write(fullHtml);
+  printWindow.document.close();
+
+  // Wait for content to load before triggering print
+  printWindow.onload = function() {
+    setTimeout(function() {
+      printWindow.print();
+    }, 500);
+  };
+
+  showToast('Print dialog opening — choose "Save as PDF"');
+}
+
+/**
+ * Sets up the PDF download button click handler.
+ */
+function initPdfDownload() {
+  var pdfBtn = document.getElementById('pdf-btn');
+  if (pdfBtn) {
+    pdfBtn.addEventListener('click', downloadPdf);
+  }
+}
+
+/**
  * Shows a brief toast notification at the bottom of the screen.
  * @param {string} message - Text to display
  */
@@ -564,4 +656,6 @@ if (typeof window !== 'undefined') {
   window.loadFromHash = loadFromHash;
   window.shareAsUrl = shareAsUrl;
   window.initSharing = initSharing;
+  window.downloadPdf = downloadPdf;
+  window.initPdfDownload = initPdfDownload;
 }
