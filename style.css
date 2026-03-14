@@ -171,6 +171,12 @@ main {
   font-style: italic;
 }
 
+#editor.drag-over {
+  outline: 2px dashed var(--divider-active);
+  outline-offset: -4px;
+  background-color: var(--bg-tertiary);
+}
+
 /* --- Resizable Divider --- */
 .divider {
   flex: 0 0 6px;

@@ -86,7 +86,7 @@ function updatePreview() {
   var markdownText = editor.value;
 
   if (!markdownText || markdownText.trim() === '') {
-    preview.innerHTML = '<div class="placeholder">Start typing Markdown to see a live preview...</div>';
+    preview.innerHTML = '<div class="placeholder">Start typing Markdown or drop a .md file to see a live preview...</div>';
     return;
   }
 
@@ -410,12 +410,58 @@ function initResizableDivider() {
   document.addEventListener('touchend', onDragEnd);
 }
 
+/**
+ * Initializes drag-and-drop support on the editor textarea.
+ * Accepts .md and .txt files — reads their content and loads it into the editor.
+ */
+function initFileDrop() {
+  var editor = document.getElementById('editor');
+  if (!editor) return;
+
+  editor.addEventListener('dragover', function (e) {
+    e.preventDefault();
+    editor.classList.add('drag-over');
+  });
+
+  editor.addEventListener('dragleave', function () {
+    editor.classList.remove('drag-over');
+  });
+
+  editor.addEventListener('drop', function (e) {
+    e.preventDefault();
+    editor.classList.remove('drag-over');
+
+    var files = e.dataTransfer && e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+
+    var file = files[0];
+    var name = file.name.toLowerCase();
+
+    if (!name.endsWith('.md') && !name.endsWith('.markdown') && !name.endsWith('.txt')) {
+      showToast('Only .md, .markdown, and .txt files are supported');
+      return;
+    }
+
+    var reader = new FileReader();
+    reader.onload = function (event) {
+      editor.value = event.target.result;
+      updatePreview();
+      showToast('Loaded ' + file.name);
+    };
+    reader.onerror = function () {
+      showToast('Failed to read file');
+    };
+    reader.readAsText(file);
+  });
+}
+
 // Initialize on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
   initTheme();
   initRenderer();
   initSharing();
   initPdfDownload();
+  initFileDrop();
   loadFromHash();
 });
 
@@ -658,4 +704,5 @@ if (typeof window !== 'undefined') {
   window.initSharing = initSharing;
   window.downloadPdf = downloadPdf;
   window.initPdfDownload = initPdfDownload;
+  window.initFileDrop = initFileDrop;
 }
